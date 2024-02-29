@@ -1,3 +1,8 @@
+/*
+Covid 19 Data Exploration 
+Skills used: Joins, Temp Tables, Windows Functions, Aggregate Functions, Creating Views, Converting Data Types
+*/
+
 -- DBS created. View Data
 SELECT *
 FROM PortfolioProject..CovidDeaths
@@ -136,3 +141,21 @@ WHERE dea.continent is not null
 
 Select *, (RollingPeopleVaccinated/population)*100
 From #PercentPopulationVaccinated
+
+-- To create Views to store data for later visualizations
+Create View TotalDeathCount as
+SELECT continent, MAX(total_deaths) DeathCount
+FROM PortfolioProject..CovidDeaths
+WHERE continent is not null
+GROUP BY continent
+Order By DeathCount DESC
+
+Create View PercentPopulationVaccinated as
+Select dea.continent, dea.location, dea.date, dea.population,vac. new_vaccinations
+, SUM(new_vaccinations) OVER (Partition By dea.location Order By dea.location, dea.date) RollingPeopleVaccinated
+FROM PortfolioProject..CovidDeaths dea
+JOIN PortfolioProject..CovidVaccinations vac
+	ON dea.location = vac.location
+	AND dea.date = vac.date
+WHERE dea.continent is not null
+
